@@ -19,14 +19,18 @@ documentation: $(SOURCES)
 
 .PHONY: test
 test: lex
-	./lex abc.txt abcOut.txt
-	./lex test1.txt test1Out.txt
-
+	./lex abc.txt test/test.out
+#	./lex test1.txt test1Out.txt
+	@echo
+	@echo --------------------
+	@diff test/test.ref test/test.out
+	@echo TEST SUCCESSFUL
+	@echo
 
 .PHONY: clean
 clean:
 	-rm lex 
 	-rm *.ali *.o
 	-rm b~*
-	-rm abcOut.txt
+	-rm test/test.out
 

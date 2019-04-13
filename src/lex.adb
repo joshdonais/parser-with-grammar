@@ -30,7 +30,8 @@ WITH Ada.Command_Line;              USE Ada.Command_Line;
 
 Procedure lex IS
     type toke is (PROGSYM, BEGINSYM, ENDSYM, DECSYM, COLN, SEMICOLN, COMMA,
-        READSYM, WRITESYM, OP, dTYPE, IDENT, LPAREN, RPAREN);
+        READSYM, WRITESYM, dTYPE, IDENT, LPAREN, RPAREN, ADD, SUBTRACT,
+        MULTIPLY, DIVIDE, ASSIGN, NUM, UNKNOWN, OP);
     package Number is new Integer_IO(integer);  USE Number;
     package Class_IO is new Ada.Text_IO.Enumeration_IO(toke);
     -- Declarations
@@ -56,6 +57,18 @@ Procedure writeToken(outFile :IN OUT file_type; token :IN OUT toke) IS
     END writeToken;
 
 
+Procedure tokenizeOp(char :IN character) IS
+    
+BEGIN
+    case char is
+        when '+' => token := ADD;
+        when '-' => token := SUBTRACT;
+        when '*' => token := MULTIPLY;
+        when '/' => token := DIVIDE;
+        when '=' => token := ASSIGN;
+        when others => token := UNKNOWN;
+    end case;
+END tokenizeOP;
 -----
 --  tokenizeOther
 --  @pre
@@ -146,23 +159,25 @@ Procedure tokenizeUpper (inFile :IN OUT file_type; outFile :IN OUT file_type;
     token       :   toke;
     idx         :   integer := 1;
 BEGIN
-    case char is
-        when 'R' => token := READSYM;
-                    Class_IO.Put(token);
-                    writeToken(outFile, token);
-                    new_line;
-                    for idx in 1..readLen loop
-                        get(file=>inFile, item=>char);
-                    end loop;
-        when 'W' => token := WRITESYM; 
-                    Class_IO.Put(token);
-                    writeToken(outFile, token);
-                    new_line;
-                    for idx in 1..writeLen loop
-                        get(file=>inFile, item=>char);
-                    end loop;
-        when others => Put_Line(item=>"tokenizeUpper Error");
-    end case;
+    if length(word) = 0 then -- make sure word is empty
+        case char is
+            when 'R' => token := READSYM;
+                        Class_IO.Put(token);
+                        writeToken(outFile, token);
+                        new_line;
+                        for idx in 1..readLen loop
+                            get(file=>inFile, item=>char);
+                        end loop;
+            when 'W' => token := WRITESYM; 
+                        Class_IO.Put(token);
+                        writeToken(outFile, token);
+                        new_line;
+                        for idx in 1..writeLen loop
+                            get(file=>inFile, item=>char);
+                        end loop;
+            when others => Put_Line(item=>"tokenizeUpper Error");
+        end case;
+    end if;
 END tokenizeUpper;
 
 
