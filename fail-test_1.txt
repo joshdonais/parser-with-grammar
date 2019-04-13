@@ -1,0 +1,15 @@
+program abc
+dec
+i1,i2:int;
+x,y:real
+a1,a2,a3:string;
+dog, cat, mouse:string
+
+begin
+	Read(i2,x);
+	y=i2*x+2;
+	Write(y)
+        Read (a1, dog);
+        mouse = cat & a1;
+        Write(mouse)
+end.

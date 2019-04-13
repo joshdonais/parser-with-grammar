@@ -1,0 +1,8 @@
+Errors:
+    1. Are errors to be output at the end or during parsing?
+
+Lexemes:
+    1. Can lex.adb output a data structure of objects that contain
+        a. Line number
+        b. The string that was read
+        c. The token that was created from the string

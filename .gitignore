@@ -1,0 +1,9 @@
+*.gz
+examples/
+projectFiles/
+build/
+*.ali
+*.o
+b~*
+*.swp
+

@@ -1,0 +1,255 @@
+run file: parse <progFile> <switch> <ofile>
+input progFile
+    case (switch)
+        when switch = L => bool outPutLexemes := TRUE
+                        lexFile := <oFile>
+        when switch = S => bool outPutSymTable := TRUE
+                        symFile := <oFile>
+        when switch = E => bool fileEcho := TRUE
+        when others => null
+
+    //scan progFile with lex() and save lexemes to data structure 
+    // that is defined in a different package
+Lexemes = new LinkedList()
+    // call lex to output lexemes into data structure
+lex(Lexeme)
+/******************************************************************
+ * lex.adb
+ *****************************************************************/
+    // instead of printing to file use a data structure from a seperate package
+while (!eof){
+    if (fatal_error){
+        throw fatal_exception
+    }
+    else{
+        Node.token = token
+        Node.data = word
+        Node.lineNum = lineNum
+        insert(Linked_List, Node)
+    }
+}
+
+return Linked_List
+
+
+ /****************************************************************/
+    if (fileEcho = TRUE)
+        echoFile()
+    if (outPutLexemes = TRUE)
+        writeLexemes(oFile)
+
+//?* are errors to be output at the end or during parsing?
+//xx if at the end I'll push them onto a queue to be popped and output at the end
+
+    //parse lexemes using recursive descent method
+    //read symbols can probably just be replaced with if statements
+parse(){
+    readProgsym(){
+        if (token != <PROGSYM>){
+            record exeption
+            recover from exception
+        else {
+            readIdent()
+            readDecPart()
+//?* is it better to check for beginsym before, or calling the function blindly
+//?* and checking afterward?
+
+            if (token = <BEGINSYM>)
+                readStatementPart()
+            if (token = <ENDSYM>
+                exit program
+        }
+    }
+
+    readIdent(){
+        if (token != <IDENT>){
+            record exception
+            recover from exception
+        }
+        else { // handle malformed idents here
+            readLetter()
+            readRestOfIdent()
+        }
+    }
+    readRestOfIdent(){
+        if (token != <LETTER> || <IDENT>
+            record exception
+        if (nextToken = <LETTER> || <DIGIT>)
+            readRestOfIdent()
+    }
+//xxx how to determine when to record idents to a symbol table without changing
+//-->> Probably record all idents to symbol table
+//-->> Then check each new ident to see if it was already declared
+//xxx the function? (needed for declaration)
+    readDecPart(){
+        if (token != <DECSYM>)
+            record exception
+        readListVar()
+        if (token != <COLON>)
+            record exception
+        readType()
+        if (token = <SEMICOLON>
+        readDecPart() // recursive call
+    }
+
+    readListvar(){
+        if (token != <IDENT>)
+            record exception
+//xxx doesnt seem right
+        if (nextToken = <IDENT>)
+            readListVar()
+        }
+
+    readType(){
+        if ( token != <INTSYM>)
+            record exception
+        }
+
+    readStatementPart(){
+        readStatement()
+//xxx compare to readListVar, is it better to do it this way?
+//xxx readListVar would look for a COLON or RPAREN in this form
+        if (token != <ENDSYM>)
+            readStatementPart()
+    }
+//?* How do we make these OR decisions?
+    readStatement(){
+        if (nextToken = <READSYM>)
+            readInput()
+        else if (nextToken = <WRITESYM>)
+            readOutput()
+//xxx maybe a better way than to assume everything else is an assignment
+        else
+        readAssign()
+    }
+
+    readInput(){
+        if (token != <READSYM>)
+            record exception
+        if (token != <LPAREN>
+            record exception
+        readListVar()
+        if (token != <RPAREN>
+            record exception
+    }
+
+    readOutput()
+        if (token != <WRITESYM>)
+            record exception
+        if (token != <LPAREN>)
+            record exception
+        readListVar()
+        if (token != <RPAREN>)
+            record exception
+    }
+//xxx again, call readAssign(token) then readIdent(token) blindly and check the
+//xxx token inside the readIdent function? or check it before?
+    readAssign(){
+        readIdent() // ident token checking handled inside readIdent()
+        if (token != <EQUALS>)
+            record exception
+        readExpression()
+    }
+
+    readExpression(){
+        readTerm()
+        if (token != <ADD> || <SUBTRACT>)
+            record exception
+        readTerm()
+    }
+
+    readTerm()
+        readFactor()
+        if (token != <MULTIPLY> || <DIVIDE>)
+            record exception
+        readFactor()
+    }
+
+//xxx cant figure this one out easily. when to check for nameDigit or expression?
+// basic unit of expression is nameDigit
+    readFactor(){ // the factors of an expression can be another expression
+        readNameDigit()
+        if (nextToken = <ADD> || <SUBTRACT>)
+            readExpression() // factors in a term can be an expression
+
+    }
+
+    readNameDigit(){
+        if (nextToken = <DIGIT>)
+            readNum()
+        else
+            readIdent()
+    }
+
+    readNum(){ // no error handling necessary in this function, 
+              //anything that calls it is already checking if token = digit
+        if (nextToken = <DIGIT>)
+           readNum()
+    }
+        
+Exception handling
+//**************************************************************************    
+    if (error){
+        if (fatal_error){
+            throw fatal_exception
+    
+    /*********************************
+    /*** exception types by code: 
+    /*** 1 = syntax error
+    /*** 2 = ident already declared
+    /*** 3 = malformed ident
+    /*********************************
+    // check if token is required token for grammar (syntax error)
+        else if (token != gramToken){
+            exceptType = 1
+        }
+    // check if ident already declared
+        else if (token = ident){
+            if (checkDeclared(Node.word) = true){
+                exceptType = 2
+                
+            }
+//xxx fix this
+        else if (token != ident && last token = ident && next token = ident {
+            exceptType = 3 (malformed ident) 
+            // dont forget to record current token for output
+            }
+//?* can this be done with the symbol table instead?
+    // store exception obj information
+        exceptObj.gramToken = gramToken
+        exceptObj.token = Node.token
+        exceptObj.word = Node.word
+        exceptObj.lineNum = Node.lineNum
+        exceptObj.exceptType = exceptType (syntax)
+        exceptQueue.push(exceptObj)
+        exceptionCount++
+}
+//recover from exceptions
+
+OUTPUT ERRORS
+//****************************************************************************
+
+    //output of parser will indicate any errors found
+if (outputSymTable = TRUE)
+    writeSymTable(oFile)
+    //output a final result: success/fail indicating 1 or more syntax errors
+    //output number of unique errors found (don't count two of exact same error)
+    //output each unique error along with line number (obtnd from symbol table)
+        if (exceptionCount = 0)
+            output << "success no errors"
+        else{
+            output << "there were" << exceptionCount <<  "errors"
+            while (!execptQueue.empty()){
+                exType = exceptQueue.top().exceptType
+                case (exType)
+                when '1' => output << "syntax error"
+                            output << lineNum
+                            output << word
+                            output << "expected" << exceptObj.gramToken
+                                    << "got" << exceptObj.token << "instead"
+                when '2' => output << "identifier already declared"
+                                    << word << symTable(token).lineNum
+                when '3' => output << "malformed identifier"
+                                    << word << token
+        }
+
