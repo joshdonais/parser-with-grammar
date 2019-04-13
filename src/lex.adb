@@ -232,7 +232,7 @@ END tokenize;
 BEGIN
 
     put_line("Form: lex <sourcefile> <destfile>");
-    if argument_count = 0 then
+    if argument_count /= 2 then
         openReadFile(inFile);
         put_line("Token Destination: ");
         openWriteFile(outFile);
