@@ -58,7 +58,6 @@ Procedure writeToken(outFile :IN OUT file_type; token :IN OUT toke) IS
 
 
 Procedure tokenizeOp(char :IN character) IS
-    
 BEGIN
     case char is
         when '+' => token := ADD;
@@ -68,7 +67,11 @@ BEGIN
         when '=' => token := ASSIGN;
         when others => token := UNKNOWN;
     end case;
+    Class_IO.Put(token);
+    writeToken(outFile, token);
+    new_line;
 END tokenizeOP;
+
 -----
 --  tokenizeOther
 --  @pre
@@ -100,10 +103,7 @@ BEGIN
                     writeToken(outFile, token);
                     new_line;
         when ' ' | '.' => null;
-        when others => token:= OP;
-                    Class_IO.Put(token);
-                    writeToken(outFile, token);
-                    new_line;
+        when others => tokenizeOP(char);
                     
     end case;
 
