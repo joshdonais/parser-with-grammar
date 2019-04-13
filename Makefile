@@ -19,11 +19,11 @@ documentation: $(SOURCES)
 
 .PHONY: test
 test: lex
-	./lex abc.txt test/test.out
-#	./lex test1.txt test1Out.txt
+	./lex inputFiles/pass-test_1.txt test/pass-test_1.out
+	./lex inputFiles/fail-test_1.txt test/fail-test_1.out
 	@echo
 	@echo --------------------
-	@diff test/test.ref test/test.out
+	@diff test/pass-test_1.ref test/pass-test_1.out
 	@echo TEST SUCCESSFUL
 	@echo
 
@@ -34,3 +34,5 @@ clean:
 	-rm b~*
 	-rm test/test.out
 
+.PHONY: e
+e: clean all test
