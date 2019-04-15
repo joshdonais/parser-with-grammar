@@ -26,12 +26,15 @@ WITH OpenFile;                      USE OpenFile;
 WITH Ada.Strings.Unbounded;         USE Ada.Strings.Unbounded;
 WITH Ada.strings.Unbounded.Text_IO; USE Ada.Strings.Unbounded.Text_IO;
 WITH Ada.Characters.Latin_1;        USE Ada.Characters.Latin_1;
+WITH Ada.Characters.Handling;       USE Ada.Characters.Handling;
 WITH Ada.Command_Line;              USE Ada.Command_Line;
 
 Procedure lex IS
     type toke is (PROGSYM, BEGINSYM, ENDSYM, DECSYM, COLN, SEMICOLN, COMMA,
         READSYM, WRITESYM, dTYPE, IDENT, LPAREN, RPAREN, ADD, SUBTRACT,
         MULTIPLY, DIVIDE, ASSIGN, NUM, UNKNOWN, OP);
+    subtype numType is Character Range '0'..'9';
+    subtype lowerCase is Character Range 'a'..'z';
     package Number is new Integer_IO(integer);  USE Number;
     package Class_IO is new Ada.Text_IO.Enumeration_IO(toke);
     -- Declarations
@@ -54,8 +57,45 @@ Procedure writeToken(outFile :IN OUT file_type; token :IN OUT toke) IS
     BEGIN
         class_IO.Put(outFile, token);
         new_line(outFile);
-    END writeToken;
+END writeToken;
 
+Function isEmpty(word :IN ada.strings.unbounded.unbounded_string
+    ) return boolean IS
+
+    empty   :   boolean;
+BEGIN
+    if length(word) = 0 then
+        empty := true;
+        return empty;
+    else
+        empty:= false;
+        return empty;
+    end if;
+END isEmpty;
+
+Function checkIfNum(word :IN ada.strings.unbounded.unbounded_string
+    ) return boolean IS
+    
+    hasLetter   :   boolean :=false;
+    isNum       :   boolean := false;
+    empty       :   boolean;
+BEGIN
+    empty := isEmpty(word);
+    if empty = true then
+        put_line(item=>"Error, checkIfNum was called but 'word' was empty!");
+        return false;
+    end if;
+    for idx in 1..length(word) loop
+        if element(word, idx) in lowerCase then
+            hasLetter := true;
+        elsif element(word, idx) in numType and 
+            hasLetter = false  then
+            isNum := true;
+            return isNum;
+        end if;
+    end loop;
+        return isNum;
+END checkIfNum;
 
 Procedure tokenizeOp(char :IN character) IS
 BEGIN
@@ -120,8 +160,8 @@ END tokenizeOther;
 Procedure tokenizeLower (inFile :IN OUT file_type; outFile :IN OUT file_type;
     word :IN ada.strings.unbounded.unbounded_string; eof :OUT boolean;
     char :IN character) IS
-
-    token           :   toke;
+    isNum   :   boolean;
+    token   :   toke;
 BEGIN
         
     if word = "end" then
@@ -136,7 +176,12 @@ BEGIN
     elsif word = "program" then
         token := PROGSYM;
     else
-        token := IDENT;
+        isNum := checkIfNum(word);
+        if isNum = false then
+            token := IDENT;
+        else 
+            token := NUM;
+        end if;
     end if;
     class_IO.Put(token);
     writeToken(outFile, token);
@@ -177,6 +222,8 @@ BEGIN
                         end loop;
             when others => Put_Line(item=>"tokenizeUpper Error");
         end case;
+    else
+        put_line(item=>"Error, tokenizeUpper called when 'word' was not empty!");
     end if;
 END tokenizeUpper;
 
@@ -225,7 +272,7 @@ LINE:   while not Ada.Text_IO.End_of_Line (inFile) loop
         end loop LINE;
 END tokenize;
 
-    char                :   character;
+    char                :   character := 'a';
 --------------------------------------------
 -- Main Procedure
 --------------------------------------------
